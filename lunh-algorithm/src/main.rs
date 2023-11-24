@@ -16,30 +16,28 @@ pub fn luhn(cc_number: &str) -> bool {
     if sanitized.len() < 2 {
         return false;
     }
-    let mut evens_doubled = String::new();
+    let mut processed_digits = String::new();
     for (i, c) in sanitized.chars().rev().enumerate() {
-        if i % 2 == 0 {
-            evens_doubled.push(c);
+        let digit = match c.to_digit(10) {
+            Some(d) => d,
+            None => return false,
+        };
+
+        let value = if i % 2 == 0 {
+            digit
         } else {
-            let result = c.to_digit(10);
-            let mut doubled;
-            match result {
-                Some(value) => doubled = value * 2,
-                None => return false,
-            }
+            let doubled = digit * 2;
             if doubled > 9 {
-                let chars = doubled.to_string();
-                doubled = 0;
-                for c in chars.chars() {
-                    doubled += c.to_digit(10).unwrap();
-                }
+                doubled - 9
+            } else {
+                doubled
             }
-            evens_doubled.push(doubled.to_string().chars().next().unwrap())
-        }
+        };
+
+        processed_digits.push(std::char::from_digit(value, 10).unwrap());
     }
-    println!("{}", evens_doubled);
     let mut summed = 0;
-    for c in evens_doubled.chars() {
+    for c in processed_digits.chars() {
         summed += c.to_digit(10).unwrap();
     }
     let last_char_summed = summed.to_string().chars().last().unwrap().to_string();
