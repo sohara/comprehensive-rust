@@ -35,24 +35,28 @@ use Res::{Err, Ok};
 fn eval(e: Expression) -> Res {
     match e {
         Expression::Value(val) => Ok(val),
-        Expression::Op { op, left, right } => match eval(*left) {
-            Ok(left_val) => match eval(*right) {
-                Ok(right_val) => match op {
-                    Operation::Add => Ok(left_val + right_val),
-                    Operation::Sub => Ok(left_val - right_val),
-                    Operation::Mul => Ok(left_val * right_val),
-                    Operation::Div => {
-                        if right_val == 0 {
-                            Err(String::from("division by zero"))
-                        } else {
-                            Ok(left_val / right_val)
-                        }
+        Expression::Op { op, left, right } => {
+            let left_val = match eval(*left) {
+                Ok(v) => v,
+                Err(msg) => return Err(msg),
+            };
+            let right_val = match eval(*right) {
+                Ok(v) => v,
+                Err(msg) => return Err(msg),
+            };
+            Ok(match op {
+                Operation::Add => left_val + right_val,
+                Operation::Sub => left_val - right_val,
+                Operation::Mul => left_val * right_val,
+                Operation::Div => {
+                    if right_val == 0 {
+                        return Err(String::from("division by zero"));
+                    } else {
+                        left_val / right_val
                     }
-                },
-                Err(e) => Err(e),
-            },
-            Err(e) => Err(e),
-        },
+                }
+            })
+        }
     }
 }
 
