@@ -33,72 +33,26 @@ enum Res {
 use Res::{Err, Ok};
 
 fn eval(e: Expression) -> Res {
-    // todo!()
     match e {
         Expression::Value(val) => Ok(val),
-        Expression::Op {
-            op: Operation::Add,
-            left,
-            right,
-        } => {
-            let left_val = match eval(*left) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            let right_val = match eval(*right) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            return Ok(left_val + right_val);
-        }
-        Expression::Op {
-            op: Operation::Sub,
-            left,
-            right,
-        } => {
-            let left_val = match eval(*left) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            let right_val = match eval(*right) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            return Ok(left_val - right_val);
-        }
-        Expression::Op {
-            op: Operation::Mul,
-            left,
-            right,
-        } => {
-            let left_val = match eval(*left) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            let right_val = match eval(*right) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            return Ok(left_val * right_val);
-        }
-        Expression::Op {
-            op: Operation::Div,
-            left,
-            right,
-        } => {
-            let left_val = match eval(*left) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            let right_val = match eval(*right) {
-                Ok(l) => l,
-                Err(msg) => return Err(String::from("Not a correct value")),
-            };
-            if right_val == 0 {
-                return Err(String::from("division by zero"));
-            }
-            return Ok(left_val * right_val);
-        }
+        Expression::Op { op, left, right } => match eval(*left) {
+            Ok(left_val) => match eval(*right) {
+                Ok(right_val) => match op {
+                    Operation::Add => Ok(left_val + right_val),
+                    Operation::Sub => Ok(left_val - right_val),
+                    Operation::Mul => Ok(left_val * right_val),
+                    Operation::Div => {
+                        if right_val == 0 {
+                            Err(String::from("division by zero"))
+                        } else {
+                            Ok(left_val / right_val)
+                        }
+                    }
+                },
+                Err(e) => Err(e),
+            },
+            Err(e) => Err(e),
+        },
     }
 }
 
