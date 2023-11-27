@@ -1,6 +1,3 @@
-// TODO: remove this when you're done with your implementation.
-#![allow(unused_variables, dead_code)]
-
 pub struct User {
     name: String,
     age: u32,
@@ -23,35 +20,62 @@ pub struct HealthReport<'a> {
 
 impl User {
     pub fn new(name: String, age: u32, height: f32) -> Self {
-        todo!("Create a new User instance")
+        User {
+            name,
+            age,
+            height,
+            visit_count: 0,
+            last_blood_pressure: None,
+        }
     }
 
     pub fn name(&self) -> &str {
-        todo!("Return the user's name")
+        &self.name
     }
 
     pub fn age(&self) -> u32 {
-        todo!("Return the user's age")
+        self.age
     }
 
     pub fn height(&self) -> f32 {
-        todo!("Return the user's height")
+        self.height
     }
 
     pub fn doctor_visits(&self) -> u32 {
-        todo!("Return the number of time the user has visited the doctor")
+        self.visit_count as u32
     }
 
     pub fn set_age(&mut self, new_age: u32) {
-        todo!("Set the user's age")
+        self.age = new_age;
     }
 
     pub fn set_height(&mut self, new_height: f32) {
-        todo!("Set the user's height")
+        self.height = new_height;
     }
 
     pub fn visit_doctor(&mut self, measurements: Measurements) -> HealthReport {
-        todo!("Update a user's statistics based on measurements from a visit to the doctor")
+        let last_blood_pressure = self.last_blood_pressure;
+        let blood_pressure_change: Option<(i32, i32)>;
+        if let Some(last_blood_pressure) = self.last_blood_pressure {
+            blood_pressure_change = Some((
+                (measurements.blood_pressure.0 as i32) - (last_blood_pressure.0 as i32),
+                (measurements.blood_pressure.1 as i32) - (last_blood_pressure.1 as i32),
+            ));
+        } else {
+            blood_pressure_change = None
+        }
+
+        let height_change = measurements.height - self.height;
+
+        self.last_blood_pressure = Some(measurements.blood_pressure);
+        self.height = measurements.height;
+        self.visit_count += 1;
+        HealthReport {
+            patient_name: &self.name,
+            visit_count: self.visit_count as u32,
+            height_change,
+            blood_pressure_change,
+        }
     }
 }
 
