@@ -54,28 +54,20 @@ impl User {
     }
 
     pub fn visit_doctor(&mut self, measurements: Measurements) -> HealthReport {
-        let last_blood_pressure = self.last_blood_pressure;
-        let blood_pressure_change: Option<(i32, i32)>;
-        if let Some(last_blood_pressure) = self.last_blood_pressure {
-            blood_pressure_change = Some((
-                (measurements.blood_pressure.0 as i32) - (last_blood_pressure.0 as i32),
-                (measurements.blood_pressure.1 as i32) - (last_blood_pressure.1 as i32),
-            ));
-        } else {
-            blood_pressure_change = None
-        }
-
-        let height_change = measurements.height - self.height;
-
-        self.last_blood_pressure = Some(measurements.blood_pressure);
-        self.height = measurements.height;
         self.visit_count += 1;
-        HealthReport {
+        let bp = measurements.blood_pressure;
+        let report = HealthReport {
             patient_name: &self.name,
             visit_count: self.visit_count as u32,
-            height_change,
-            blood_pressure_change,
-        }
+            height_change: measurements.height - self.height,
+            blood_pressure_change: match self.last_blood_pressure {
+                Some(lbp) => Some((bp.0 as i32 - lbp.0 as i32, bp.1 as i32 - lbp.1 as i32)),
+                None => None,
+            },
+        };
+        self.height = measurements.height;
+        self.last_blood_pressure = Some(bp);
+        report
     }
 }
 
