@@ -1,19 +1,12 @@
 pub fn prefix_matches(prefix: &str, request_path: &str) -> bool {
-    let mut request_path_iterator = request_path.split('/');
+    let mut request_segments = request_path.split('/');
 
-    for prefix_seg in prefix.split('/') {
-        if prefix_seg == "*" {
-            request_path_iterator.next();
-            continue;
-        }
-
-        match request_path_iterator.next() {
-            None => return false,
-            Some(path_seg) => {
-                if prefix_seg != path_seg {
-                    return false;
-                }
-            }
+    for prefix_segment in prefix.split('/') {
+        let Some(request_segment) = request_segments.next() else {
+            return false;
+        };
+        if request_segment != prefix_segment && prefix_segment != "*" {
+            return false;
         }
     }
     true
