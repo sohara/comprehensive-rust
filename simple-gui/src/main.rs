@@ -67,31 +67,59 @@ impl Window {
 
 impl Widget for Label {
     fn width(&self) -> usize {
-        unimplemented!()
+        self.label
+            .lines()
+            .map(|line| line.chars().count())
+            .max()
+            .unwrap_or(0)
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
-        unimplemented!()
+        writeln!(buffer, "{}", &self.label).unwrap();
     }
 }
 
 impl Widget for Button {
     fn width(&self) -> usize {
-        unimplemented!()
+        self.label.width() + 8
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
-        unimplemented!()
+        let width = self.width(); // Total width including padding for borders
+                                  // let button_border = "+".to_string() + &"-".repeat(inner_width - 2) + "+"; // -2 for '+' characters
+        let mut label = String::new();
+        self.label.draw_into(&mut label);
+
+        writeln!(buffer, "+{:-<width$}+", "").unwrap();
+
+        for line in label.lines() {
+            writeln!(buffer, "|{:^width$}|", &line).unwrap();
+        }
+
+        writeln!(buffer, "+{:-<width$}+", "").unwrap();
     }
 }
 
 impl Widget for Window {
     fn width(&self) -> usize {
-        unimplemented!()
+        self.inner_width() + 4
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
-        unimplemented!()
+        let mut inner = String::new();
+        for widget in &self.widgets {
+            widget.draw_into(&mut inner);
+        }
+
+        let inner_width = self.inner_width();
+
+        writeln!(buffer, "+-{:-<inner_width$}-+", "").unwrap();
+        writeln!(buffer, "| {:^inner_width$} |", &self.title).unwrap();
+        writeln!(buffer, "+={:=<inner_width$}=+", "").unwrap();
+        for line in inner.lines() {
+            writeln!(buffer, "| {:inner_width$} |", line).unwrap();
+        }
+        writeln!(buffer, "+-{:-<inner_width$}-+", "").unwrap();
     }
 }
 
